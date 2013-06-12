@@ -1,0 +1,23 @@
+:php
+    | $this->headLink()->icon( $this->base() .'/static/bl/images/favicon.ico' );
+    | $this->headMeta()->setCharset( 'utf-8' )->noRobots()->enableResponsiveDesign();
+    | $this->headScript()
+    |   ->alias('jquery')->append( $this->base() .'/static/clw/js/jquery-bootstrap.min.js' )
+    |   ->alias('clw')->append( $this->bundle( '/static/clw/js/clw.js'), 'jquery' );    
+    | $auth = ClwSystem_Auth::getInstance();
+    | $this->headLink()->append( $this->bundle( '/static/clw/css/bundle-normal.css' ) );
+!!! 5
+html
+    head
+        script(type="text/Javascript")
+            | var app = {base:"{{$this->base()}}", token : "{{$this->token()}}", iconclass: "{{ $this->ns()->broker()->iconClass()}}" };
+        - echo $this->head();
+    body(class="{{$this->boxClass()->getClass( 'body' ) }}")
+        .navbar
+            .navbar-inner
+                .container
+                    - echo $this->broker('ClwSystem')->menu();        
+        .bl-container
+            section#bd
+                - echo $this->view->getContents();
+        - echo $this->footer();

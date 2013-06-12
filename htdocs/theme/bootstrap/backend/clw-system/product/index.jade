@@ -1,0 +1,155 @@
+:php
+    | $auth = ClwSystem_Auth::getInstance();
+    | $auth->requireAccessTo( 'Product/product.view');
+    | $bCanEdit = $auth->hasAccessTo( 'Product/product.edit');
+    | $this->headTitle()->set( 'Products Management' )->h1();
+    | $this->headScript()->append( $this->bundle( '/static/clw/js/product.js'), 'clw'  );
+    | $this->boxClass()->setClass( 'body', 'product-editor' ) ;
+
+- $tblAdvertiser = ClwSystem_Advertiser::Table();
+- $Vendors = $tblAdvertiser->getVendors();
+
+- $formFilter = ClwSystem_Product::Form('Filter');
+- $cActiveFilter = $formFilter->isActive( $this->inflection );
+- $formFilter->createElements();
+- $strFilterString = $formFilter->getFilterString( $this->inflection );
+- $tblCatproduction = ClwSystem_Catproduction::Table()
+- $allCategories = $tblCatproduction->getCategoriesArray();
+- $fullStructure = $tblCatproduction->getFullStructure();
+
+ul.breadcrumb
+    - if ( $cActiveFilter ):
+        li
+            a(href="/clw-system/product/index") All Products
+            span.divider /
+        li.active
+            a(href="javascript:void(0)",onclick="clw.product.e.filter.form.show()")
+                - echo $strFilterString;
+    - else:
+        li.active
+            a.filter(href="javascript:void(0)",onclick="clw.product.e.filter.form.show()") All Categories
+    - endif;
+
+
+form.form-inline.form-filter.well(method="post",onsubmit="return false;")
+    label
+        | &nbsp; Vendors:
+    select(name="p_a_id", style="width:100px")
+        option(value="-1")
+            | All vendors
+            - foreach ( $Vendors as $Vendor):
+                option(value="{{$Vendor->a_id}}")
+                    - echo $Vendor->a_name;
+    label
+        | &nbsp; Production categories:
+    select(name="cwp_id")
+        option(value="-1")
+            | All categories
+        - foreach ( $fullStructure as $cat):
+            - $level = sizeof($tblCatproduction->getParentCategories($allCategories, $cat->cwp_pt_id));
+            option(value="{{$cat->cwp_id}}", style="margin-left:{{$level*15}}px")
+                - echo $cat->cwp_name;
+
+    button.btn.btn-primary(onclick="clw.product.e.filter.form.submit()")
+        | Apply Filter
+    button.btn.btn-cancel(type="reset",onclick="clw.product.e.filter.form.hide()")
+        i.icon-remove.icon-white
+
+
+- if ( $bCanEdit ):
+    .top-buttons
+        a.btn.btn-primary.btn-big.btn-add(href="#product-modal", role="button", data-toggle="modal")
+            i.icon-plus.icon-white
+            | New Product
+- endif;
+
+table.table.table-striped.table-bordered(style="table-layout: fixed; width:150%;")
+    thead
+        tr
+            th(style="width:1%")
+                | #
+            th(style="width:150px")
+                - echo $this->ns()->broker()->column( 'Product Name', 'p_name' );
+            th(style="width:150px")
+                - echo $this->ns()->broker()->column( 'Description', 'p_description' );
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Sale', 'p_sale_price' );
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Price', 'p_price' );
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Retail', 'p_retail_price' );
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Warr', 'p_warranty' );
+            th(style="width: 100px;")
+                - echo $this->ns()->broker()->column( 'Img', 'p_image_url' );
+            th(style="width: 100px;")
+                - echo $this->ns()->broker()->column( 'Cl', 'p_clr_id' );
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Elect', 'p_elect' );
+            th(style="width:100px")
+                - echo $this->ns()->broker()->column( 'Add date', 'p_added_at' );
+            th(style="width:100px")
+                - echo $this->ns()->broker()->column( 'Up date', 'p_updated_at' );
+            th(style="width:3%")
+                | #
+                //- echo $this->ns()->broker()->columnCsvPdf()
+
+    :php
+        | echo $this->action( 'getlist', 'product', 'clw-system', array(
+        |   'section' => 'backend',
+        |   'template' => 'tr',
+        |   'sort' => 'p_name',
+        |   'results' => '10'));
+
+- if ( $bCanEdit ):
+    #product-modal.modal.hide.fade(tabindex="-1", role="dialog", aria-hidden="true")
+        .modal-header
+            button.close(data-dismiss="modal", aria-hidden="true")
+                | X
+            h3.title.add-visible
+                - echo $this->translate('Add Product');
+        .modal-body.form-horizontal
+            .control-group
+                label.control-label
+                    | Product Name:
+                .controls
+                    textarea(name="p_name")
+            .control-group
+                label.control-label
+                    | Description:
+                .controls
+                    textarea(name="p_description")
+            .control-group
+                label.control-label
+                    | Sale:
+                .controls
+                    input.input-name(type="text", name="p_sale_price", maxlength="150")
+            .control-group
+                label.control-label
+                    | Price:
+                .controls
+                    input.input-name(type="text", name="p_price", maxlength="150")
+            .control-group
+                label.control-label
+                    | Retail:
+                .controls
+                    input.input-name(type="text", name="p_retail_price", maxlength="150")
+            .control-group
+                label.control-label
+                    | Warranty:
+                .controls
+                    input.input-name(type="text", name="p_warranty", maxlength="150")
+            .control-group
+                label.control-label
+                    | Elect:
+                .controls
+                    input.input-name(type="text", name="p_elect", maxlength="150")
+        .modal-footer
+            button.btn.btn-primary.btn-submit
+                i.icon-ok.icon-white
+                - echo $this->translate( 'Save' );
+            button.btn.btn-cancel-edit(data-dismiss="modal", aria-hidden="true")
+                i.icon-ban-circle.icon-white
+                - echo $this->translate( 'Cancel' );
+- endif;
+- echo $this->ns()->confirmation('Confirm User Deleting', 'You are about to delete company division, procedure is irreversible.' );

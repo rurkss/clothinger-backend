@@ -1,0 +1,61 @@
+:php
+    | $auth = ClwSystem_Auth::getInstance(  );
+    | $auth->requireAccessTo( 'Product/product.view');
+    | $bCanEdit = $auth->hasAccessTo( 'Product/product.edit');
+
+- if ( count( $this->listObjects ) > 0 ):
+    tbody
+        - foreach ( $this->listObjects as $objStrategy ):
+            - $colors = $objStrategy->getColors();
+            - $nId = $objStrategy->getId();
+            tr(id="product-{{$nId}}")
+                td.iterator
+                td
+                    - echo $objStrategy->getName();
+                td
+                    - echo $objStrategy->getIntroDesc();
+                td
+                    - echo $objStrategy->getSalePrice();
+                td
+                    - echo $objStrategy->getPrice();
+                td
+                    - echo $objStrategy->retailPrice();
+                td
+                    - echo $objStrategy->getIntroWarranty();
+                td
+                    img(src="{{$objStrategy->getImageUrl()}}", style="width: 100px;")
+                td
+                    - for($i=0, $mx=sizeof($colors); $i<$mx; $i++)
+                        table
+                            tr
+                                td(style="border:0; background: none;")
+                                    div.color(style="background-color: #{{$colors[$i]}};height:20px; width:20px; margin:2px; border: 1px solid; float: left; ")
+                                td(style="border:0; background: none;")
+                                    - if($colors[$i] == $objStrategy->getBasecolorID()):
+                                        input.radio(type="radio", name="{{$nId}}", value="{{$colors[$i]}}", style="margin: 0 0 4px 2px;", checked="checked")
+                                    - else:
+                                        input.radio(type="radio", name="{{$nId}}", value="{{$colors[$i]}}", style="margin: 0 0 4px 2px;")
+                td
+                    - echo $objStrategy->is_elect();
+                td
+                    - echo $objStrategy->getAddDate();
+                td
+                    - echo $objStrategy->getUpdateDate();
+                td
+                    - if ($bCanEdit):
+                        .hover-visible.edit-hidden                            
+                            button.btn.btn-small.btn-edit
+                                i.icon-pencil.icon-white
+                                span.hidden-phone
+                            - if ( $objStrategy->canBeDeleted() ):
+                                button.btn.btn-small.btn-remove
+                                    i.icon-remove.icon-white
+                                    span.hidden-phone
+                            - endif;
+                    - endif;
+- endif;
+    tbody.hidden
+        - echo $this->ns()->broker()->inflectionUrl();
+    tfooter.edit-hidden
+        td(colspan="13")
+            - echo $this->broker('ClwSystem')->pager();

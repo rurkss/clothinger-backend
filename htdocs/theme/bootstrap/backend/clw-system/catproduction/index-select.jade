@@ -1,0 +1,11 @@
+- $tblCatproduction = ClwSystem_Catproduction::Table()
+- $allCategories = $tblCatproduction->getCategoriesArray();
+- $fullStructure = $tblCatproduction->getFullStructure();
+
+select#cwp_pt_id(name="cwp_pt_id")
+    option(value="0")
+        | ----
+    - foreach ( $fullStructure as $cat):
+        - $level = sizeof($tblCatproduction->getParentCategories($allCategories, $cat->cwp_pt_id));
+        option(value="{{$cat->cwp_id}}", style="margin-left:{{$level*15}}px")
+            - echo $cat->cwp_name;

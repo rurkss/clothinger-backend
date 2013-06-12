@@ -1,0 +1,68 @@
+:php
+    | $auth = ClwSystem_Auth::getInstance();
+    | $auth->requireAccessTo( 'Catproduction/catproduction.view');
+    | $bCanEdit = $auth->hasAccessTo( 'Catproduction/catproduction.edit');
+    | $this->headTitle()->set( 'Category Production Management' )->h1();
+    | $this->headScript()->append( $this->bundle( '/static/clw/js/catproduction.js'), 'clw'  );
+    | $this->boxClass()->setClass( 'body', 'catproduction-editor' ) ;
+
+- if ( $bCanEdit ):
+    .top-buttons
+        a.btn.btn-primary.btn-big.btn-add(href="#catproduction-modal", role="button", data-toggle="modal")
+            i.icon-plus.icon-white
+            | New Category
+- endif;
+
+table.table.table-striped.table-bordered
+    thead
+        tr
+            th.c
+                | #
+            th(style="width: 200px;")
+                - echo $this->ns()->broker()->column( 'Category Name', 'cwp_name ' );
+            th(style="width: 300px;")
+                - echo $this->ns()->broker()->column( 'Parent/Child Categories', 'cwp_name ' );
+            th.buttons.hover-visible.edit-hidden
+                - //echo $this->ns()->broker()->columnCsvPdf()
+
+    :php
+        | echo $this->action( 'getlist', 'catproduction', 'clw-system', array(
+        |   'section' => 'backend',
+        |   'template' => 'tr',
+        |   'sort' => 'cwp_name' ) );
+
+- if ( $bCanEdit ):
+    #catproduction-modal.modal.hide.fade(tabindex="-1", role="dialog", aria-hidden="true")
+        .modal-header
+            button.close(data-dismiss="modal", aria-hidden="true")
+                | X
+            h3.title.add-visible
+                - echo $this->translate('Add Category');
+        .modal-body.form-horizontal
+            .control-group
+                label.control-label
+                    | Category Name:
+                .controls
+                    input.input-name(type="text", name="cwp_name", maxlength="150", placeholder="Category Name")
+            .control-group
+                label.control-label
+                    | Category Alias:
+                .controls
+                    input.input-name(type="text", name="cwp_alias", maxlength="150", placeholder="Alias")
+            .control-group
+                label.control-label
+                    | Parent category Name:
+                .controls(id="parselect")
+                    :php
+                        | echo $this->action( 'index', 'catproduction', 'clw-system', array(
+                        |   'section' => 'backend',
+                        |   'template' => 'select') );
+        .modal-footer
+            button.btn.btn-primary.btn-submit
+                i.icon-ok.icon-white
+                - echo $this->translate( 'Save' );
+            button.btn.btn-cancel-edit(data-dismiss="modal", aria-hidden="true")
+                i.icon-ban-circle.icon-white
+                - echo $this->translate( 'Cancel' );
+- endif;
+- echo $this->ns()->confirmation('Confirm User Deleting', 'You are about to delete company division, procedure is irreversible.' );

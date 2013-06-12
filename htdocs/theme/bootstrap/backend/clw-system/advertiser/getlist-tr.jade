@@ -1,0 +1,39 @@
+:php
+    | $auth = ClwSystem_Auth::getInstance(  );
+    | $auth->requireAccessTo( 'Advertiser/advertiser.view');
+    | $bCanEdit = $auth->hasAccessTo( 'Advertiser/advertiser.edit');
+
+- if ( count( $this->listObjects ) > 0 ):
+    tbody
+        - foreach ( $this->listObjects as $objStrategy ):            
+            - $nId = $objStrategy->getId();
+            tr(id="vendor-{{$nId}}")
+                td.iterator
+                td
+                    - echo $objStrategy->getName();                    
+                td
+                    - echo $objStrategy->getUrl();
+                td
+                    - echo $objStrategy->getAlias();
+                td
+                    - echo $objStrategy->getLoadUrl();
+                td
+                    - echo $objStrategy->getStatus();
+                td
+                    - if ($bCanEdit):
+                        .hover-visible.edit-hidden                            
+                            button.btn.btn-small.btn-edit
+                                i.icon-pencil.icon-white
+                                span.hidden-phone
+                            - if ( $objStrategy->canBeDeleted() ):
+                                button.btn.btn-small.btn-remove
+                                    i.icon-remove.icon-white
+                                    span.hidden-phone
+                            - endif;
+                    - endif;      
+- endif;    
+    tbody.hidden
+        - echo $this->ns()->broker()->inflectionUrl();
+    tfooter.edit-hidden
+        td(colspan="7")
+            - echo $this->broker('ClwSystem')->pager();

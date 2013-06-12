@@ -1,0 +1,26 @@
+{
+    "name": "clothinger-backend",
+    "version" : "0.1.0",
+    "classes" : [ "ClwSystem" ],
+    "vhosts" : [{
+        "name" : "sys-clothinger-com",   
+        "copy" : [ ".htaccess", "index.php", "patch.php", "test.php" ],
+        "writable" : [ 
+            "cdn"
+        ]
+    }],
+    "database" : {
+        "name" : ""
+    },
+    "deps" : [
+        "webapps-framework-lib",
+        "webapps-everzet-jade-lib",
+        "webapps-option-lib",
+        "webapps-tfpdf-lib",
+        "webapps-jquery-tablednd-lib",
+        "webapps-jquery-colorpicker-lib",
+        "webapps-user-lib >= 0.1.5",
+        "webapps-shipper-lib",
+        "webapps-geocoder-lib"
+    ]
+}

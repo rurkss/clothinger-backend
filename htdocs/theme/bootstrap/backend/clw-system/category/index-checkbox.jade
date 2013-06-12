@@ -1,0 +1,13 @@
+- $tblCatproduction = ClwSystem_Catproduction::Table()
+- $allCategories = $tblCatproduction->getCategoriesArray();
+- $fullStructure = $tblCatproduction->getFullStructure();
+.control-group
+    label.control-label
+        | Production Categories:
+    .controls(style="padding-top:5px;")
+        - foreach ( $fullStructure as $cat):
+            - $level = sizeof($tblCatproduction->getParentCategories($allCategories, $cat->cwp_pt_id));
+            input(type="checkbox", name="cwpr_cwp_id[]", value="{{$cat->cwp_id}}", style="margin-left:{{$level*15}}px")
+            - echo $cat->cwp_name;
+            br
+

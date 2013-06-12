@@ -1,0 +1,50 @@
+:php
+    | $auth = ClwSystem_Auth::getInstance(  );
+    | $auth->requireAccessTo( 'Catproduction/catproduction.view');
+    | $bCanEdit = $auth->hasAccessTo( 'Catproduction/catproduction.edit');
+
+- $tbl = ClwSystem_Catproduction::Table();
+- $rows = $tbl->fetchAll()->toArray();
+
+- if ( count( $this->listObjects ) > 0 ):
+- $class = '';
+    tbody
+        - foreach ( $this->listObjects as $objStrategy ):            
+            - $nId = $objStrategy->getId();
+            tr(id="catproduction-{{$nId}}")
+                td.iterator
+                td
+                    - echo $objStrategy->getName();
+                td
+                    select.span3(name="cwp_pt_id")
+                        - $count = 0;
+                        - foreach ( $objStrategy->getParentChildCategories() as $category):
+                            - $level = sizeof($tbl->getParentCategories($rows, $category->cwp_pt_id));
+                            - if($category->cwp_id == $nId):
+                                option(value="{{$category->cwp_id}}", selected="selected", style="margin-left:{{$level*15}}px")
+                                    - echo $category->cwp_name;
+                            - else:
+                                option(value="{{$category->cwp_id}}", style="margin-left:{{$level*15}}px")
+                                    - echo $category->cwp_name;
+                            - endif;
+                            - $count++;
+                td.buttons
+                    - if ($bCanEdit):
+                        .hover-visible.edit-hidden                            
+                            button.btn.btn-small.btn-edit
+                                i.icon-pencil.icon-white
+                                span.hidden-phone
+                                    | Edit
+                            - if ( $objStrategy->canBeDeleted() ):
+                                button.btn.btn-small.btn-remove
+                                    i.icon-remove.icon-white
+                                    span.hidden-phone
+                                        | Delete
+                            - endif;
+                    - endif;      
+- endif;
+    tbody.hidden
+        - echo $this->ns()->broker()->inflectionUrl();
+    tfooter.edit-hidden
+        td(colspan="4")
+            - echo $this->broker('ClwSystem')->pager();

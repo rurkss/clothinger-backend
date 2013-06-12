@@ -1,0 +1,36 @@
+:php
+    | $this->headLink()->append( $this->bundle( '/static/clw/css/auth.css') );
+    | $this->headLink()->icon( $this->base() .'/static/clw/images/favicon.ico' );
+    | $this->headMeta()->setCharset( 'utf-8' );
+    | $this->headTitle()->set('Clothing Wire :: System' );
+!!! 5
+html
+head
+    - echo $this->head();
+body
+    .row
+        .logo
+    
+    - if ( Sys_Global::isRegistered('errcode'))
+        .row
+            .alert
+                - if ( 1 == Sys_Global::get('errcode') )
+                    - echo $this->translate( 'User or password were incorrect' );
+                - if ( 2 == Sys_Global::get('errcode') )
+                    - echo $this->translate( 'User was disabled');
+                - if ( 3 == Sys_Global::get('errcode') )
+                    - echo $this->translate( 'User role access is forbidden');
+    .row.m20
+        form(action="{{$this->base()}}/", method="post")
+            input(name="returnurl",type="hidden",value="{{isset( $_SERVER['REQUEST_URI'] ) ? $this->escape($_SERVER['REQUEST_URI']) : '' }}")
+            .phone-row
+                label.phone-row(for="login")
+                    | Login: 
+                input#login(name="login",type="text",placeholder="Your Login")
+            .phone-row
+                label.phone-row(for="password")
+                    | Password:
+                input#password(name="password",type="password",placeholder="Your Password")
+                .phone-row
+                button(type="submit")
+                    | Sign in

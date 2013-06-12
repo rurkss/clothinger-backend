@@ -1,0 +1,111 @@
+:php
+    | $auth = ClwSystem_Auth::getInstance();
+    | $auth->requireAccessTo( 'Category/category.view');
+    | $bCanEdit = $auth->hasAccessTo( 'Category/category.edit');
+    | $this->headTitle()->set( 'Category Management' )->h1();
+    | $this->headScript()->append( $this->bundle( '/static/clw/js/category.js'), 'clw'  );
+    | $this->boxClass()->setClass( 'body', 'category-editor' ) ;
+
+//- if ( $bCanEdit ):
+//    .top-buttons
+//        a.btn.btn-primary.btn-big.btn-add(href="#vendor-modal", role="button", data-toggle="modal")
+//            i.icon-plus.icon-white
+//            | New Vendor
+//- endif;
+
+- $tblAdvertiser = ClwSystem_Advertiser::Table();
+- $Vendors = $tblAdvertiser->getVendors();
+- $formFilter = ClwSystem_Category::Form('Filter');
+- $cActiveFilter = $formFilter->isActive( $this->inflection );
+- $formFilter->createElements();
+- $strFilterString = $formFilter->getFilterString( $this->inflection );
+- $tblCatproduction = ClwSystem_Catproduction::Table()
+- $allCategories = $tblCatproduction->getCategoriesArray();
+- $fullStructure = $tblCatproduction->getFullStructure();
+
+ul.breadcrumb
+    - if ( $cActiveFilter ):
+        li
+            a(href="/clw-system/category/index") All Categories
+            span.divider /
+        li.active
+            a(href="javascript:void(0)",onclick="clw.category.e.filter.form.show()")
+                - echo $strFilterString;
+    - else:
+        li.active
+            a.filter(href="javascript:void(0)",onclick="clw.category.e.filter.form.show()") All Categories
+    - endif;
+
+
+form.form-inline.form-filter.well(method="post",onsubmit="return false;")
+    label
+        | &nbsp; Vendors:
+    select(name="c_a_id")
+        option(value="-1")
+            | All vendors
+        - foreach ( $Vendors as $Vendor):
+            option(value="{{$Vendor->a_id}}")
+                - echo $Vendor->a_name;
+    label
+        | &nbsp; Production categories:
+    select(name="cwp_id")
+        option(value="-1")
+            | All categories
+        - foreach ( $fullStructure as $cat):
+            - $level = sizeof($tblCatproduction->getParentCategories($allCategories, $cat->cwp_pt_id));
+            option(value="{{$cat->cwp_id}}", style="margin-left:{{$level*15}}px")
+                - echo $cat->cwp_name;
+
+    button.btn.btn-primary(onclick="clw.category.e.filter.form.submit()")
+        | Apply Filter
+    button.btn.btn-cancel(type="reset",onclick="clw.category.e.filter.form.hide()")
+        i.icon-remove.icon-white
+
+table.table.table-striped.table-bordered
+    thead
+        tr
+            th.c
+                | #
+            th(style="width: 300px;")
+                - echo $this->ns()->broker()->column( 'Category Name', 'c_name ' );
+            th(style="width: 150px;")
+                - echo $this->ns()->broker()->column( 'Product Count', 'productcount' );
+            th(style="width: 300px;")
+                - echo $this->ns()->broker()->column( 'Breadcrumb');
+            th.buttons.hover-visible.edit-hidden
+                - //echo $this->ns()->broker()->columnCsvPdf()
+
+    :php
+        | echo $this->action( 'getlist', 'category', 'clw-system', array(
+        |   'section' => 'backend',
+        |   'template' => 'tr',
+        |   'productcount' => 1,
+        |   'sort' => 'c_name' ) );
+
+- if ( $bCanEdit ):
+    #category-modal.modal.hide.fade(tabindex="-1", role="dialog", aria-hidden="true")
+        .modal-header
+            button.close(data-dismiss="modal", aria-hidden="true")
+                | X
+            h3.title.add-visible
+                - echo $this->translate('Add Category');
+        .modal-body.form-horizontal
+            .control-group
+                label.control-label
+                    | Category Name:
+                .controls
+                    input.input-name(type="text", name="c_name", maxlength="150")
+
+            :php
+                | echo $this->action( 'index', 'category', 'clw-system', array(
+                |   'section' => 'backend',
+                |   'template' => 'checkbox') );
+        .modal-footer
+            button.btn.btn-primary.btn-submit
+                i.icon-ok.icon-white
+                - echo $this->translate( 'Save' );
+            button.btn.btn-cancel-edit(data-dismiss="modal", aria-hidden="true")
+                i.icon-ban-circle.icon-white
+                - echo $this->translate( 'Cancel' );
+- endif;
+- echo $this->ns()->confirmation('Confirm User Deleting', 'You are about to delete company division, procedure is irreversible.' );

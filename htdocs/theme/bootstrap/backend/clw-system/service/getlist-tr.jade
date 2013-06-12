@@ -1,0 +1,42 @@
+:php
+    | $auth = ClwSystem_Auth::getInstance(  );
+    | $auth->requireAccessTo( 'Service/service.view');
+    | $bCanEdit = $auth->hasAccessTo( 'Service/service.edit');
+
+- if ( count( $this->listObjects ) > 0 ):
+    tbody
+        - foreach ( $this->listObjects as $objStrategy ):            
+            - $nId = $objStrategy->getId();
+            tr(id="service-{{$nId}}")
+                td.iterator
+                td
+                    - echo $objStrategy->getName();                    
+                td
+                    - echo $objStrategy->getLoadDir();
+                td
+                    a(href="{{$objStrategy->getLoadUrl()}}", target="_blank")
+                        | load link
+                td
+                    - echo $objStrategy->getLoadLogin();
+                td
+                    - echo $objStrategy->getLoadPass();
+                td
+                    - echo $objStrategy->getStatus();
+                td
+                    - if ($bCanEdit):
+                        .hover-visible.edit-hidden                            
+                            button.btn.btn-small.btn-edit
+                                i.icon-pencil.icon-white
+                                span.hidden-phone
+                            - if ( $objStrategy->canBeDeleted() ):
+                                button.btn.btn-small.btn-remove
+                                    i.icon-remove.icon-white
+                                    span.hidden-phone
+                            - endif;
+                    - endif;      
+- endif;    
+    tbody.hidden
+        - echo $this->ns()->broker()->inflectionUrl();
+    tfooter.edit-hidden
+        td(colspan="8")
+            - echo $this->broker('ClwSystem')->pager();

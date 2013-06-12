@@ -1,0 +1,87 @@
+:php
+    | $auth = ClwSystem_Auth::getInstance();
+    | $auth->requireAccessTo( 'Service/service.view');
+    | $bCanEdit = $auth->hasAccessTo( 'Service/service.edit');
+    | $this->headTitle()->set( 'Service Management' )->h1();
+    | $this->headScript()->append( $this->bundle( '/static/clw/js/service.js'), 'clw'  );
+    | $this->boxClass()->setClass( 'body', 'service-editor' ) ;
+- if ( $bCanEdit ):
+    .top-buttons
+        a.btn.btn-primary.btn-big.btn-add(href="#service-modal", role="button", data-toggle="modal")
+            i.icon-plus.icon-white
+            | New Service
+- endif;
+
+table.table.table-striped.table-bordered(style="table-layout: fixed;")
+    thead
+        tr
+            th.c(style="width:1%")
+                | #
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Name', 'cws_name' );
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Dir', 'cws_load_dir' );
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Load link', 'cws_load_url' );
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Load login', 'cws_load_url' );
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Load pass', 'cws_load_url' );
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Active', 'cws_enabled' );
+            th(style="width:7%")
+                | Edit/Del
+
+    :php
+        | echo $this->action( 'getlist', 'service', 'clw-system', array(
+        |   'section' => 'backend',
+        |   'template' => 'tr',
+        |   'sort' => 'cws_name' ) );
+
+- if ( $bCanEdit ):
+    #service-modal.modal.hide.fade(tabindex="-1", role="dialog", aria-hidden="true")
+        .modal-header
+            button.close(data-dismiss="modal", aria-hidden="true")
+                | X
+            h3.title.add-visible
+                - echo $this->translate('Add Service');
+        .modal-body.form-horizontal
+            .control-group
+                label.control-label
+                    | Name:
+                .controls
+                    input.input-name(type="text", name="cws_name", maxlength="50")
+            .control-group
+                label.control-label
+                    | Dir:
+                .controls
+                    input.input-name(type="text", name="cws_load_dir")
+            .control-group
+                label.control-label
+                    | Load link:
+                .controls
+                    input.input-name(type="text", name="cws_load_url")
+            .control-group
+                label.control-label
+                    | Load login:
+                .controls
+                    input.input-name(type="text", name="cws_load_login", maxlength="50")
+            .control-group
+                label.control-label
+                    | Load pass:
+                .controls
+                    input.input-name(type="text", name="cws_load_pass", maxlength="50")
+            .control-group
+                label.control-label
+                    | Active:
+                .controls
+                    input.input-name(type="text", name="cws_enabled", maxlength="50")
+        .modal-footer
+            button.btn.btn-primary.btn-submit
+                i.icon-ok.icon-white
+                - echo $this->translate( 'Save' );
+            button.btn.btn-cancel-edit(data-dismiss="modal", aria-hidden="true")
+                i.icon-ban-circle.icon-white
+                - echo $this->translate( 'Cancel' );
+- endif;
+- echo $this->ns()->confirmation('Confirm User Deleting', 'You are about to delete company division, procedure is irreversible.' );

@@ -1,0 +1,93 @@
+:php
+    | $auth = ClwSystem_Auth::getInstance();
+    | $auth->requireAccessTo( 'Advertiser/advertiser.view');
+    | $bCanEdit = $auth->hasAccessTo( 'Advertiser/advertiser.edit');
+    | $this->headTitle()->set( 'Vendor Management' )->h1();
+    | $this->headScript()->append( $this->bundle( '/static/clw/js/vendor.js'), 'clw'  );
+    | $this->boxClass()->setClass( 'body', 'vendor-editor' ) ;
+
+- $services = ClwSystem_Service::Table()->getActiveServices();
+
+- if ( $bCanEdit ):
+    .top-buttons
+        a.btn.btn-primary.btn-big.btn-add(href="#vendor-modal", role="button", data-toggle="modal")
+            i.icon-plus.icon-white
+            | New Vendor
+- endif;
+
+table.table.table-striped.table-bordered(style="table-layout: fixed;")
+    thead
+        tr
+            th.c(style="width:1%")
+                | #
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Name', 'a_name' );
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Link', 'a_url' );
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Alias', 'a_alias' );
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Load link', 'a_load_url' );
+            th(style="")
+                - echo $this->ns()->broker()->column( 'Active', 'a_enabled' );
+            th(style="width:7%")
+                | Edit/Del
+
+    :php
+        | echo $this->action( 'getlist', 'advertiser', 'clw-system', array(
+        |   'section' => 'backend',
+        |   'template' => 'tr',
+        |   'sort' => 'a_name' ) );
+
+- if ( $bCanEdit ):
+    #vendor-modal.modal.hide.fade(tabindex="-1", role="dialog", aria-hidden="true")
+        .modal-header
+            button.close(data-dismiss="modal", aria-hidden="true")
+                | X
+            h3.title.add-visible
+                - echo $this->translate('Add Vendor');
+        .modal-body.form-horizontal
+            .control-group
+                label.control-label
+                    | Name:
+                .controls
+                    input.input-name(type="text", name="a_name", maxlength="50")
+            .control-group
+                label.control-label
+                    | Service:
+                .controls
+                    select(name="a_s_id")
+                        option(value="0")
+                            | ----
+                        - foreach ( $services as $service):
+                            option(value="{{$service->cws_id}}")
+                                - echo $service->cws_name;
+            .control-group
+                label.control-label
+                    | Link:
+                .controls
+                    input.input-name(type="text", name="a_url")
+            .control-group
+                label.control-label
+                    | Alias:
+                .controls
+                    input.input-name(type="text", name="a_alias", maxlength="50")
+            .control-group
+                label.control-label
+                    | Load link:
+                .controls
+                    input.input-name(type="text", name="a_load_url")
+            .control-group
+                label.control-label
+                    | Active:
+                .controls
+                    input.input-name(type="text", name="a_enabled", maxlength="2")
+        .modal-footer
+            button.btn.btn-primary.btn-submit
+                i.icon-ok.icon-white
+                - echo $this->translate( 'Save' );
+            button.btn.btn-cancel-edit(data-dismiss="modal", aria-hidden="true")
+                i.icon-ban-circle.icon-white
+                - echo $this->translate( 'Cancel' );
+- endif;
+- echo $this->ns()->confirmation('Confirm User Deleting', 'You are about to delete company division, procedure is irreversible.' );
